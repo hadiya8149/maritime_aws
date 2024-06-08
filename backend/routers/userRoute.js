@@ -14,7 +14,7 @@ userRouter.post('/login', async (req, res)=>{
 
     const pass = req.body.password;
     console.log(email, pass)
-    const sql = 'SELECT * FROM users WHERE email= ?';
+    const sql = 'SELECT * FROM users WHERE email= $1';
     await db.query(sql, [email], (err, result)=>{
         console.log(result)
         if (err) {
@@ -30,7 +30,13 @@ userRouter.post('/login', async (req, res)=>{
             if (pass === result[0].password){
                 console.log(result[0].role)
                 console.log(result[0])
-                return res.status(200).json(({user_role:result[0].role,user_id:result[0].user_id, token:'test123', username:result[0].username}))
+                const username = result.rows[0].username;
+                const user_id = result.rows[0].user_id;
+                const token = 'test123';
+                const role = result.rows[0].role;
+                return res.status(200).json((
+                    {user_role:role,user_id:user_id, token:token, username:username}
+                ))
             }
             else{
                 return res.status(401).json({ message: 'invalid password' });

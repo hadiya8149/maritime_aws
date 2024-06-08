@@ -8,8 +8,9 @@ export const createCourse  = async (req, res) => {
   const images = req.files; // Retrieve the array of uploaded files
   const query = `
     INSERT INTO courses (course_name, description, duration_months, instructor, image_url) 
-    VALUES (?, ?, ?, ?, ?)
+    VALUES ($1, $2, $3, $4, $5)
   `;
+
 
   // Create an array of values for the query
   const values = [course_name, description, duration_months, instructor, '']; // Join URLs with a delimiter
@@ -23,7 +24,7 @@ export const createCourse  = async (req, res) => {
     console.log(results)
     res.status(201).json({
       success: true,
-      data: results,
+      data: results.rows,
       message: 'Course created successfully'
     });
   });
@@ -39,7 +40,7 @@ export const updateCourse = (req, res) => {
   const images = req.files; // Retrieve the array of uploaded files
   console.log(courseId, req.body, "req.body")
   function updateTable(col, value){
-    const sql = `UPDATE courses SET ${col} = ? where course_id=?;`
+    const sql = `UPDATE courses SET ${col} = $1 WHERE course_id = $2;`
     db.query(sql, [value, courseId], (err, result)=>{
       if(err){
        return res.status(400).json("could not update")
@@ -70,7 +71,7 @@ export const updateCourse = (req, res) => {
 export const deleteCourse = (req, res) => {
   const courseId = req.params.id;
 
-  const query = `DELETE FROM courses WHERE course_id = ?`;
+  const query = `DELETE FROM courses WHERE course_id = $1`;
 
   db.query(query, [courseId], (error, results) => {
     if (error) {
@@ -94,7 +95,7 @@ export const deleteCourse = (req, res) => {
 export const getCourseById = (req, res) => {
   const courseId = req.params.id;
 
-  const query = `SELECT * FROM courses WHERE course_id = ?`;
+  const query = `SELECT * FROM courses WHERE course_id = $1`;
 
   db.query(query, [courseId], (error, results) => {
     if (error) {
@@ -115,7 +116,7 @@ export const getCourseById = (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: results
+      data: results.rows
     });
   });
 };
@@ -135,7 +136,7 @@ export const getAllCourses = (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: results
+      data: results.rows
     });
   });
 };

@@ -6,7 +6,7 @@ export const sendMessage = async(req, res) => {
 
     console.log('Request Body:', req.body); // Log request body
     
-    const query = 'INSERT INTO messages (sender_id, receiver_id, subject, body, Timestamp) VALUES (?, ?, ?, ?,?)';
+    const query = 'INSERT INTO messages (sender_id, receiver_id, subject, body, Timestamp) VALUES ($1, $2, $3, $4,$5)';
     db.query(query, [sender_id, receiver_id, subject, body, Timestamp], (err, result) => {
 
       if (err) {
@@ -33,7 +33,7 @@ export const getAllMessages = (req, res) => {
       
       res.status(200).json({ 
         success: true,
-        Data: results,
+        data: results.rows,
         msg : "Fetch All messages data successfully."
       });
     });

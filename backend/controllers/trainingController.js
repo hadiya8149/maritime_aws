@@ -10,8 +10,8 @@ export const createProgram = async (req, res) => {
   // Check if all required fields are present
 
   const query = `
-    INSERT INTO trainingprograms (program_name, description, duration_months, trainer, img_url) 
-    VALUES (?, ?, ?, ?, ?)
+     INSERT INTO trainingprograms (program_name, description, duration_months, trainer, img_url) 
+    VALUES ($1, $2, $3, $4, $5)
   `;
 
   const values = [program_name, description, duration_months, trainer, ' '];
@@ -32,7 +32,7 @@ export const createProgram = async (req, res) => {
 export const getProgramById = (req, res) => {
   const programId = req.params.id;
 
-  const query = `SELECT * FROM trainingprograms WHERE program_id = ?`;
+  const query = `SELECT * FROM trainingprograms WHERE program_id = $1`;
 
   db.query(query, [programId], (error, results) => {
     if (error) {
@@ -53,7 +53,7 @@ export const getProgramById = (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: results,
+      data: results.rows,
       msg: 'Fetch successfully'
     });
   });
@@ -74,7 +74,7 @@ export const getAllPrograms = (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: results,
+      data: results.rows,
       msg: "Fetch All training programs successfully."
 
     });
@@ -91,7 +91,7 @@ export const updateProgram =async (req, res) => {
 
   const images = req.files; // Retrieve the array of uploaded files
   function updateTable(col, value){
-    const sql = `UPDATE trainingprograms SET ${col} = ? where program_id = ?;`
+    const sql = `UPDATE trainingprograms SET ${col} = $1 where program_id = $2;`
     db.query(sql, [value, programId], (err, result)=>{
       if(err){
        return res.status(400).json("could not update")
@@ -121,7 +121,7 @@ export const updateProgram =async (req, res) => {
 export const deleteProgram = (req, res) => {
   const programId = req.params.id;
 
-  const query = `DELETE FROM trainingprograms WHERE program_id = ?`;
+  const query = `DELETE FROM trainingprograms WHERE program_id = $1`;
 
   db.query(query, [programId], (error, results) => {
     if (error) {

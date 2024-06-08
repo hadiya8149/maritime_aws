@@ -7,7 +7,7 @@ const progressRouter = express.Router();
 // Create a new progress
 progressRouter.post('/progress', async(req, res)=>{
   const {std_id, CourseID, ProgramID, ProgressPercentage, CompletionStatus, LastUpdatedDate} = req.body;
-  const sql = 'INSERT INTO progress (std_id, CourseID, ProgramID, ProgressPercentage, CompletionStatus, LastUpdatedDate)VALUES(?,?,?,?,?,?)'
+  const sql = 'INSERT INTO progress (std_id, CourseID, ProgramID, ProgressPercentage, CompletionStatus, LastUpdatedDate)VALUES($1,$2,$3,$4,$5,$6)'
   db.query(sql, [std_id, CourseID, ProgramID, ProgressPercentage, CompletionStatus, LastUpdatedDate], (err, result)=>{
     if(err){
       throw err;
@@ -25,7 +25,7 @@ progressRouter.get('/progresss');
 // Get progress by ID
 progressRouter.get('/progress/:id', async (req,res)=>{
   const std_id = req.params.id;
-  const query = `SELECT * FROM progress WHERE std_id = ?`;
+  const query = `SELECT * FROM progress WHERE std_id = $1`;
 
   db.query(query, [std_id], (error, results) => {
     if (error) {
@@ -45,7 +45,7 @@ progressRouter.get('/progress/:id', async (req,res)=>{
 
     res.status(200).json({
       success: true,
-      data: results
+      data: results.rows
     });
   });
 });

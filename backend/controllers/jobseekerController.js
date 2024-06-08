@@ -4,7 +4,7 @@ import { db } from "../config/dbConnection.js";
 export const createJobSeeker = (req, res) => {
     const { jobSeeker_id, user_id, resumeURL, skills, workExperience, education, certifications, languages } = req.body;
 
-    const sql = `INSERT INTO jobseekers (jobSeeker_id, user_id, resumeURL, skills, workExperience, education, certifications, languages) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO jobseekers (jobSeeker_id, user_id, resumeURL, skills, workExperience, education, certifications, languages) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
     const values = [jobSeeker_id, user_id, resumeURL, skills, workExperience, education, certifications, languages];
 
     db.query(sql, values, (err, result) => {
@@ -30,7 +30,7 @@ export const updateJobSeeker =async (req, res) => {
     const { user_id, name, email, resumeURL, skills, workExperience, education, certifications, languages } = req.body;
 
     async function updateTable(col, value){
-        const sql = `UPDATE jobseekers SET ${col} =? WHERE jobSeeker_id=?;`
+        const sql = `UPDATE jobseekers SET ${col} =$1 WHERE jobSeeker_id=$1;`
         db.query(sql, [value,jobSeekerId], (err,result)=>{
             if(err){
                 throw err
@@ -76,7 +76,7 @@ export const updateJobSeeker =async (req, res) => {
 export const deleteJobSeeker = (req, res) => {
     const jobSeekerId = req.params.id;
 
-    const sql = `DELETE FROM jobseekers WHERE jobSeeker_id = ?`;
+    const sql = `DELETE FROM jobseekers WHERE jobSeeker_id = $1`;
     const values = [jobSeekerId];
 
     db.query(sql, values, (err, result) => {
@@ -100,7 +100,7 @@ export const deleteJobSeeker = (req, res) => {
 export const getJobSeekerById = (req, res) => {
     const jobSeekerId = req.params.id;
 
-    const sql = `SELECT * FROM jobseekers WHERE jobSeeker_id = ?`;
+    const sql = `SELECT * FROM jobseekers WHERE jobSeeker_id = $1`;
     const values = [jobSeekerId];
 
     db.query(sql, values, (err, result) => {
@@ -127,7 +127,7 @@ export const getJobSeekerById = (req, res) => {
 export const getJobSeekerByUserId = (req, res) => {
     const user_id = req.params.id;
 
-    const sql = `SELECT * FROM jobseekers WHERE user_id = ?`;
+    const sql = `SELECT * FROM jobseekers WHERE user_id = $1`;
     const values = [user_id];
 
     db.query(sql, values, (err, result) => {
@@ -137,16 +137,13 @@ export const getJobSeekerByUserId = (req, res) => {
                 success: false,
                 error: 'Error fetching job seeker'
             });
-            return;
         }
         if (result.length === 0) {
             res.status(404).json({ error: 'Job seeker not found' });
-            return;
         }
-        const jobSeeker = result[0];
         res.status(200).json({
             success: true,
-            data: jobSeeker,
+            data: result.rows,
             msg: "Fetch job seeker data successfully."
         });
     });
@@ -167,7 +164,7 @@ export const getAllJobSeekers = (req, res) => {
         }
         res.json({
             success: true,
-            data: result,
+            data: result.rows,
             msg: "Fetch  job seekers data successfully."
         });
     });

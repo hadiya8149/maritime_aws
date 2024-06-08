@@ -3,7 +3,7 @@ import { db } from "../config/dbConnection.js";
 export const createNotification = (req, res) => {
   const { user_id, notificationType, content, IsRead } = req.body;
   console.log(req.body)
-  const query = 'INSERT INTO notifications (user_id, notificationType, content, IsRead) VALUES (?, ?, ?, ?)';
+  const query = 'INSERT INTO notifications (user_id, notificationType, content, IsRead) VALUES ($1, $2, $3, $4)';
   db.query(query, [user_id, notificationType, content, IsRead], (err, result) => {
     if (err) {
       console.error('Error creating notification:', err);
@@ -22,14 +22,12 @@ export const sendNotificationToUser = async (req, res) => {
   console.log(req.params)
   console.log(req.body)
   console.log("jobseekerid", job_seeker_id)
-  const  sql2 = 'select job_title from jobs where job_id=?'
-  const sql= 'SELECT user_id from jobseekers where jobSeeker_id=?'
+  const  sql2 = 'select job_title from jobs where job_id=$1'
+  const sql= 'SELECT user_id from jobseekers where jobSeeker_id=$2'
 
   db.query(sql, [job_seeker_id], (err, result)=>{
     if(!err){
-      console.log(result[0].user_id)
-      const user_id = result[0].user_id
-      const query = 'INSERT INTO notifications (user_id, notificationType, content, IsRead) VALUES (?, ?, ?, ?)';
+      const query = 'INSERT INTO notifications (user_id, notificationType, content, IsRead) VALUES ($1, $2, $3, $4)';
     db.query(query, [user_id, notificationType, content, IsRead], (err, result) => {
       if (err) {
         console.error('Error creating notification:', err);
@@ -60,7 +58,7 @@ export const getAllNotifications = (req, res) => {
       
       res.status(200).json({ 
         success: true,
-        Data: results ,
+        data: results.rows ,
         msg : "Fetch All notifications data successfully."
 
       });

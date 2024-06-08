@@ -26,12 +26,12 @@ resumeRoute.post('/upload_resume' , upload.single('file') , async(req, res) => {
     console.log(req.body, jobSeeker_id)
   
     // // Insert resume details into MySQL database
-    const query = 'select * from resume where jobSeeker_id=?';
+    const query = 'select * from resume where jobSeeker_id=$1';
     await db.query(query, [jobSeeker_id],async (err, result)=>{
         if(!err){
             console.log("updating resume")
             if(result[0].jobSeeker_id){
-                const sql = 'UPDATE resume SET resume_URL=? WHERE jobSeeker_id=?';
+                const sql = 'UPDATE resume SET resume_URL=$1 WHERE jobSeeker_id=$2';
                 const values = [req.file.originalname, jobSeeker_id];
                 await db.query(sql, values, (error, result)=>{
                     if(!err){
@@ -41,7 +41,7 @@ resumeRoute.post('/upload_resume' , upload.single('file') , async(req, res) => {
             }
             else{
                 const LastUpdatedDate = new Date.now().toISOString().slice(0,19).replace('T', ' ');
-                const sql = 'INSERT INTO resume (jobSeeker_id, resume_URL, LastUpdatedDate) VALUES (?, ?, ?)';
+                const sql = 'INSERT INTO resume (jobSeeker_id, resume_URL, LastUpdatedDate) VALUES ($1, $2, $3)';
                 await db.query(sql, [jobSeeker_id, req.file.originalname, LastUpdatedDate], (err, result)=>{
                     if(!err){
                         res.status(200).json({msg:'inserted resume succeessfully'})
@@ -53,7 +53,7 @@ resumeRoute.post('/upload_resume' , upload.single('file') , async(req, res) => {
 });
 resumeRoute.get('/get_resume/:id', async(req, res)=>{
     try{
-        const sql = 'select resume_URL from resume where jobSeeker_id=?'
+        const sql = 'select resume_URL from resume where jobSeeker_id=$1'
         const jobSeeker_id = req.params.id;
         await db.query(sql, [jobSeeker_id], (err, result)=>{
             console.log(result[0].resume_URL)

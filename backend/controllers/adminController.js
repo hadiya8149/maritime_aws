@@ -3,7 +3,7 @@ import { db } from "../config/dbConnection.js";
 export const createAdmin = (req, res) => {
     const { admin_id, user_id, first_name, last_name, contact_number, email, role_description } = req.body;
 
-    const sql = `INSERT INTO admins (admin_id, user_id, first_name, last_name, contact_number, email, role_description) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO admins (admin_id, user_id, first_name, last_name, contact_number, email, role_description) VALUES ($1, $2, $3, $4, $5, $6, $7)`;
     const values = [admin_id, user_id, first_name, last_name, contact_number, email, role_description];
 
     db.query(sql, values, (err, result) => {
@@ -18,7 +18,7 @@ export const createAdmin = (req, res) => {
         console.log('Data inserted successfully');
         res.status(201).json({
             success: true,
-            data: result,
+            data: result.rows,
             message: 'Data inserted successfully'
         });
     });
@@ -30,11 +30,23 @@ export const updateAdmin = (req, res) => {
     const { user_id, username, password, first_name, last_name, contact_number, email, role_description } = req.body;
 
     // Update admin table
-    const adminUpdateSql = `UPDATE admins SET user_id = ?, username = ?, password = ?, first_name = ?, last_name = ?, contact_number = ?, email = ?, role_description = ? WHERE admin_id = ?`;
-    const adminUpdateValues = [user_id, username, password, first_name, last_name, contact_number, email, role_description, adminId];
+    const adminUpdateSql = `UPDATE admins
+    SET user_id = $1,
+        username = $2,
+        password = $3,
+        first_name = $4,
+        last_name = $5,
+        contact_number = $6,
+        email = $7,
+        role_description = $8
+    WHERE admin_id = $9;`;
+        const adminUpdateValues = [user_id, username, password, first_name, last_name, contact_number, email, role_description, adminId];
 
     // Update user table
-    const userUpdateSql = `UPDATE users SET username = ?, password = ?,  email = ? WHERE user_id = ?`;
+    const userUpdateSql = `UPDATE users  SET username = $1,
+    password = $2,
+    email = $3
+WHERE user_id = $4;`;
     const userUpdateValues = [username, password, email, user_id];
 
     db.beginTransaction((err) => {
@@ -101,7 +113,7 @@ export const updateAdmin = (req, res) => {
 export const deleteAdmin = (req, res) => {
     const adminId = req.params.id;
 
-    const sql = `DELETE FROM admins WHERE admin_id = ?`;
+    const sql = `DELETE FROM admins WHERE admin_id = $1`;
     const values = [adminId];
 
     db.query(sql, values, (err, result) => {
@@ -125,7 +137,7 @@ export const deleteAdmin = (req, res) => {
 export const getAdminById = (req, res) => {
     const adminId = req.params.id;
 
-    const sql = `SELECT * FROM admins WHERE admin_id = ?`;
+    const sql = `SELECT * FROM admins WHERE admin_id = $1`;
     const values = [adminId];
 
     db.query(sql, values, (err, result) => {
@@ -163,11 +175,9 @@ export const getAllAdmins = (req, res) => {
             });
             return;
         }
-        console.log('res')
-        console.log(res)
         res.json({
             success: true,
-            data: result,
+            data: result.rows,
             msg: "Fetch All admins data successfully."
         });
     });

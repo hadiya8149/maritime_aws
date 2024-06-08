@@ -22,7 +22,7 @@ export const createUser = async (req, res) => {
         await db.beginTransaction();
 
         // Insert user data into the users table
-        const userInsertQuery = 'INSERT INTO users (username, email, password, role, user_age, user_gender) VALUES (?, ?, ?, ?, ?, ?)';
+        const userInsertQuery = 'INSERT INTO users (username, email, password, role, user_age, user_gender) VALUES ($1, $2, $3, $4, $5, $6)';
         const userInsertParams = [username, email, password, role, age, gender];
         const insertUser = (userInsertQuery, userInsertParams) => {
             return new Promise((resolve, reject) => {
@@ -91,19 +91,19 @@ export const createUser = async (req, res) => {
 
 // Function to insert admin data into the admins table THERE CAN;T BE MULTIOPLE ADMINS
 const insertAdmin = async (username,email, password) => {
-    const adminInsertQuery = 'INSERT INTO admins (user_id,username,email, password, email) VALUES (?, ?,?)';
+    const adminInsertQuery = 'INSERT INTO admins (user_id,username,email, password, email) VALUES ($1, $2, $3)';
     await db.query(adminInsertQuery, [userId, username, password, email]);
 };
 
 // Function to insert student data into the students table
 const insertStudent = async (userId, fullName, gender) => {
-    const studentInsertQuery = 'INSERT INTO students (user_id, studentName, gender) VALUES (?, ?, ?)';
+    const studentInsertQuery = 'INSERT INTO students (user_id, studentName, gender) VALUES ($1, $2, $3)';
     await db.query(studentInsertQuery, [userId, fullName, gender]);
 };
 
 // Function to insert employer data into the employers table
 const insertEmployer = async (userId, username, email) => {
-    const employerInsertQuery = 'INSERT INTO employers (user_id, username, email) VALUES (?, ?, ?)';
+    const employerInsertQuery = 'INSERT INTO employers (user_id, username, email) VALUES($1, $2, $3)';
     console.log("userid, username, email")
     console.log(userId, username, email);
     await db.query(employerInsertQuery, [userId, username, email], (err, result)=>{
@@ -118,7 +118,7 @@ const insertEmployer = async (userId, username, email) => {
 
 // Function to insert jobseeker data into the jobseekers table
 const insertJobseeker = async (userId, email) => {
-    const jobseekerInsertQuery = 'INSERT INTO jobseekers (user_id, username, email) VALUES (?, ?)';
+    const jobseekerInsertQuery = 'INSERT INTO jobseekers (user_id, username, email) VALUES($1, $2)';
     await db.query(jobseekerInsertQuery, [userId, email]);
 };
 
@@ -128,7 +128,7 @@ const checkEmailExists = async (email) => {
     try {
         // console.log("........................")
 
-        const rows = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        const rows = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         // console.log("........................")
         return rows.length > 0;
     } catch (error) {
@@ -144,7 +144,7 @@ const checkEmailExists = async (email) => {
 
 export const getUserById = async (req, res) => {
     const userId = req.params.id
-    const sql = 'SELECT username, email, user_age, user_gender FROM users WHERE user_id=?'
+    const sql = 'SELECT username, email, user_age, user_gender FROM users WHERE user_id=$1'
     db.query(sql,  [userId], (error, result)=> {
         if (error) throw error;
         else{
@@ -169,7 +169,7 @@ export const getAllUsers = async (req, res) => {
             if (error) throw error;
             return res.status(200).send({
                 success: true,
-                data: result,
+                data: result.rows,
                 msg: "Fetch All users successfully"
             })
         });
@@ -194,7 +194,7 @@ export const updateUser = async (req, res) => {
 
     try {
         if (username){
-            const user_query = 'UPDATE users SET username=? where user_id=?'
+            const user_query = 'UPDATE users SET username=$1 where user_id=$1'
             const values = [username, userId];
             db.query(user_query, values, (err, result)=>{
                 if(!err){
@@ -207,7 +207,7 @@ export const updateUser = async (req, res) => {
             })
         }
         if(password){
-            const pass_query = 'UPDATE users SET password=? where user_id=?'
+            const pass_query = 'UPDATE users SET password=$1 where user_id=$2'
             const values = [pass_query, userId];
             db.query(pass_query, values, (err, result)=>{
                 if(!err){
@@ -220,7 +220,7 @@ export const updateUser = async (req, res) => {
             })
         }
         if(!!user_age){
-            const age_query = 'UPDATE users SET user_age=? where user_id=?'
+            const age_query = 'UPDATE users SET user_age=$1 where user_id=$2'
             const values = [user_age, userId];
             db.query(age_query, values, (err, result)=>{
                 if(!err){
@@ -234,7 +234,7 @@ export const updateUser = async (req, res) => {
             })
         }
         if(user_gender){
-            const gender_query = 'UPDATE users SET user_gender=? where user_id=?'
+            const gender_query = 'UPDATE users SET user_gender=$1 where user_id=$2'
             const values = [user_gender, userId];
             db.query(gender_query, values, (err, result)=>{
                 if(!err){
@@ -285,8 +285,8 @@ export const updateUser = async (req, res) => {
 const updateAdmin = async (userId, username, password, email) => {
     const updateAdminQuery = `
         UPDATE admins
-        SET username = ?, password = ? , email= ?
-        WHERE user_id = ?;
+        SET username = $1, password = $2 , email= $3
+        WHERE user_id = $4;
     `;
     await db.query(updateAdminQuery, [username, password, email, userId]);
 };
@@ -295,8 +295,8 @@ const updateAdmin = async (userId, username, password, email) => {
 const updateStudent = async (userId, username, password, email) => {
     const updateStudentQuery = `
         UPDATE students
-        SET username = ?, password = ? , email= ?
-        WHERE user_id = ?;
+        SET username = $1, password = $2 , email= $3
+        WHERE user_id = $4;
     `;
     await db.query(updateStudentQuery, [username, password, email, userId]);
 };
@@ -305,8 +305,8 @@ const updateStudent = async (userId, username, password, email) => {
 const updateEmployer = async (userId, username, password, email) => {
     const updateEmployerQuery = `
         UPDATE employers
-        SET username = ?, password = ? , email= ?
-        WHERE user_id = ?;
+        SET username = $1, password = $2 , email= $3
+        WHERE user_id = $4;
     `;
     await db.query(updateEmployerQuery, [username, password, email, userId]);
 };
@@ -315,8 +315,8 @@ const updateEmployer = async (userId, username, password, email) => {
 const updateJobseeker = async (userId, username, password, email) => {
     const updateJobseekerQuery = `
         UPDATE jobseekers
-        SET username = ?, password = ? , email= ?
-        WHERE user_id = ?;
+        SET username = $1, password = $2 , email= $3
+        WHERE user_id = $4;
     `;
     await db.query(updateJobseekerQuery, [username, password, email, userId]);
 };
@@ -327,7 +327,7 @@ export const deleteUser = async (req, res) => {
     console.log(userId)
     try {
         // Check if the user exists
-        const userResult = await db.query('SELECT * FROM users WHERE user_id = ?;', [userId]);
+        const userResult = await db.query('SELECT * FROM users WHERE user_id = $1;', [userId]);
 
         if (!userResult || userResult.length === 0) {
             return res.status(404).send({
@@ -339,15 +339,15 @@ export const deleteUser = async (req, res) => {
         await db.beginTransaction();
 
         // Delete the user from the users table
-        const deleteUserQuery = 'DELETE FROM users WHERE user_id = ?;';
+        const deleteUserQuery = 'DELETE FROM users WHERE user_id = $1;';
         await db.query(deleteUserQuery, [userId]);
 
         // Delete user records from role tables
         const deleteRoleQueries = [
-            'DELETE FROM admins WHERE user_id = ?;',
-            'DELETE FROM students WHERE user_id = ?;',
-            'DELETE FROM employers WHERE user_id = ?;',
-            'DELETE FROM jobseekers WHERE user_id = ?;'
+            'DELETE FROM admins WHERE user_id = $1;',
+            'DELETE FROM students WHERE user_id = $2;',
+            'DELETE FROM employers WHERE user_id = $3;',
+            'DELETE FROM jobseekers WHERE user_id = $4;'
             // Add more role tables as needed
         ];
 
@@ -390,7 +390,7 @@ export const deleteUser = async (req, res) => {
 //     try {
 //         const email = req.body.email;
 
-//         const userResult = await db.query('SELECT * FROM users WHERE LOWER(email) = LOWER(?);', [email]);
+//         const userResult = await db.query('SELECT * FROM users WHERE LOWER(email) = LOWER($);', [email]);
 
 //         // console.log('userResult:', userResult);
 

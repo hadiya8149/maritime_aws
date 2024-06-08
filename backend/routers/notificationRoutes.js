@@ -14,7 +14,7 @@ notificationRouter.get('/notifications' , getAllNotifications);
 
 notificationRouter.get('/notification_by_user_id/:id', async(req, res)=>{
     const user_id = req.params.id;
-    const sql = 'select * from notifications where user_id=?';
+    const sql = 'select * from notifications where user_id=$1';
     await db.query(sql, [user_id], (err, result)=>{
         if(!err){
             console.log(result)

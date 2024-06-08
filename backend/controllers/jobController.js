@@ -5,7 +5,7 @@ export const  createJob =async (req, res) => {
     const { job_title, job_description, requirements, location, salary, employer_id, PostingDate, ExpiryDate } = req.body.body;
     console.log(req.body)
     console.log(job_title, job_description, requirements, location, salary, employer_id, PostingDate, ExpiryDate)
-    const sql = `INSERT INTO jobs (job_title, job_description, requirements, location, salary, employer_id, PostingDate, ExpiryDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO jobs (job_title, job_description, requirements, location, salary, employer_id, PostingDate, ExpiryDate) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
     const values = [job_title, job_description, requirements, location, salary, employer_id, PostingDate, ExpiryDate];
 
     db.query(sql, values, (err, result) => {
@@ -17,7 +17,7 @@ export const  createJob =async (req, res) => {
         console.log('Data inserted successfully');
         res.status(201).json({
             success : true,
-            data : result,
+            data : result.rows,
             message: 'Job created successfully'
         });
     });
@@ -27,7 +27,14 @@ export const  createJob =async (req, res) => {
 export const updateJob = async (req, res) => {
     const {job_id, job_title, job_description, requirements, location, salary, ExpiryDate } = req.body.body;
     console.log("req.body",req.body.body)
-    const sql = `UPDATE jobs SET job_title = ?, job_description = ?, requirements = ?, location = ?, salary = ?, ExpiryDate = ? WHERE job_id = ?`;
+    const sql = `UPDATE jobs
+    SET job_title = $1,
+        job_description = $2,
+        requirements = $3,
+        location = $4,
+        salary = $5,
+        ExpiryDate = $6
+    WHERE job_id = $7;`;    
     const values = [job_title, job_description, requirements, location, salary, ExpiryDate, job_id];
 
     const response = await db.query(sql, values, (err, result) => {
@@ -68,7 +75,7 @@ export const deleteJob = (req, res) => {
 export const getJobById = (req, res) => {
     const jobId = req.params.id;
 
-    const sql = `SELECT * FROM jobs WHERE job_id = ?`;
+    const sql = `SELECT * FROM jobs WHERE job_id = $1`;
     const values = [jobId];
 
     db.query(sql, values, (err, result) => {
@@ -81,10 +88,9 @@ export const getJobById = (req, res) => {
             res.status(404).json({ error: 'Job not found' });
             return;
         }
-        const job = result[0];
         res.json({
             success : true,
-            data : job,
+            data : result.rows,
             msg: "Fetch job data successfully."
         });
     });
@@ -92,17 +98,15 @@ export const getJobById = (req, res) => {
 export const getJobByEmployerId = (req, res) => {
     const employerId = req.params.id;
     console.log(req.params.id)
-    const sql = `SELECT * FROM jobs WHERE employer_id = ?`;
+    const sql = `SELECT * FROM jobs WHERE employer_id = $1`;
     db.query(sql, [employerId], (err, result) => {
         if (err) {
             console.error('Error executing SQL:', err);
             res.status(500).json({ error: 'Error fetching job' });
         }
-        const job = result;
-        console.log(result)
         res.json({
             success : true,
-            data : job,
+            data : result.rows,
             msg: "Fetch job data successfully."
         });
     });
@@ -120,7 +124,7 @@ export const getAllJobs = (req, res) => {
         }
         res.json({
             success : true,
-            data : result,
+            data : result.rows,
             msg: "Fetch All jobs data successfully."
         });
     });

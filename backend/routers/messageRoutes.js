@@ -11,11 +11,11 @@ messageRouter.post('/send_message_to_jobSeeker/:id', async(req, res)=>{
     const {jobseeker_id,body,subject }=req.body
     const sender_id = req.params.id
     console.log(req.body, req.params)
-    const sql = 'select user_id from jobseekers where jobSeeker_id=?'
+    const sql = 'select user_id from jobseekers where jobSeeker_id=$1'
     db.query(sql, [jobseeker_id], (err, result)=>{
         if(!err){ 
             const user_id = result[0].user_id;  
-            const sql2 = 'INSERT INTO messages (sender_id, receiver_id, subject, body) VALUES(?,?,?,?)';
+            const sql2 = 'INSERT INTO messages (sender_id, receiver_id, subject, body) VALUES($1,$2,$3,$4)';
             db.query(sql2, [sender_id, user_id, subject, body], (err, result)=>{
                 if(!err){
                  console.log(result)
@@ -37,7 +37,7 @@ messageRouter.get('/messages' , getAllMessages);
 messageRouter.get('/message_by_user_id/:id', async(req, res)=>{
     const user_id = req.params.id;
     
-    const sql = 'select subject, body, Timestamp , users.email FROM messages LEFT JOIN users on messages.sender_id = users.user_id WHERE messages.sender_id=? OR messages.receiver_id=?;';
+    const sql = 'select subject, body, Timestamp , users.email FROM messages LEFT JOIN users on messages.sender_id = users.user_id WHERE messages.sender_id=$1 OR messages.receiver_id=$2;';
     db.query(sql, [user_id, user_id], (err, result)=>{
         if(!err){
             console.log(result)

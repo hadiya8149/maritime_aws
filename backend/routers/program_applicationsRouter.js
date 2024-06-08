@@ -26,33 +26,22 @@ programApplicationRouter.post('/apply_for_program', (req,res)=>{
     });
 });
 
-// Get all programs
-programApplicationRouter.get('/all_program_applications', (req, res)=>{
-    
-});
-
 // Get program by student ID
 programApplicationRouter.get('/program_application_by_std/:id', (req, res)=>{
     const id = req.params.id;
     console.log(id)
-    const sql = 'select trainingprograms.program_id, trainingprograms.program_name from applications_for_courses_and_programs inner join trainingprograms on applications_for_courses_and_programs.program_id=trainingprograms.program_id where std_id=1;';
+    const sql = 'select trainingprograms.program_id, trainingprograms.program_name from applications_for_courses_and_programs inner join trainingprograms on applications_for_courses_and_programs.program_id=trainingprograms.program_id where std_id=$1;';
     db.query(sql,[id] ,(err, result) => {
         if (err) {
             console.error('Error executing SQL:', err);
             res.status(500).json({ error: 'Error fetching students' });
             return;
         }
-        console.log(result)
-        if (result.length>0){
             res.status(200).json({
                 success : true,
-                data : result,
+                data : result.rows,
                 msg: "Fetch All students data successfully."
             });
-        }
-        else{
-            res.status(404).json({data:"no programs found"})
-        }
         
     });
 

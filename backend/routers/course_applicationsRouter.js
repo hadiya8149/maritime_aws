@@ -39,7 +39,7 @@ courseApplicationRouter.get('/all_course_applications', (req, res)=>{
         }
         res.json({
             success : true,
-            data : result,
+            data : result.rows,
             msg: "Fetch All students data successfully."
         });
     });
@@ -49,7 +49,7 @@ courseApplicationRouter.get('/all_course_applications', (req, res)=>{
 courseApplicationRouter.get('/course_application_by_std/:id', (req, res)=>{
     const id = req.params.id;
     console.log(id)
-    const sql = 'select courses.course_id, courses.course_name from applications_for_courses_and_programs inner join courses on applications_for_courses_and_programs.course_id=courses.course_id where std_id=?;'
+    const sql = 'select courses.course_id, courses.course_name from applications_for_courses_and_programs inner join courses on applications_for_courses_and_programs.course_id=courses.course_id where std_id=$1;'
     db.query(sql,[id] ,(err, result) => {
         if (err) {
             console.error('Error executing SQL:', err);
@@ -59,7 +59,7 @@ courseApplicationRouter.get('/course_application_by_std/:id', (req, res)=>{
         if (result.length>0){
             res.status(200).json({
                 success : true,
-                data : result,
+                data : result.rows,
                 msg: "Fetch All students data successfully."
             });
         }

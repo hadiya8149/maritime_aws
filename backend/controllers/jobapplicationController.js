@@ -5,8 +5,8 @@ export const createJobApplication = (req, res) => {
     const { jobSeeker_id, job_id, AppDate, Status, ResumeURL } = req.body.body;
     const filePath = req.file;
     console.log(jobSeeker_id, job_id, AppDate, Status, ResumeURL)
+    const sql = `INSERT INTO jobapplications (jobSeeker_id, job_id, AppDate, Status, ResumeURL) VALUES ($1, $2, $3, $4, $5)`;
     
-    const sql = `INSERT INTO jobapplications (jobSeeker_id, job_id, AppDate, Status, ResumeURL) VALUES (?, ?, ?, ?, ?)`;
     const values = [jobSeeker_id, job_id, AppDate, Status, ResumeURL];
 
     db.query(sql, values, (err, result) => {
@@ -18,7 +18,7 @@ export const createJobApplication = (req, res) => {
         console.log('Data inserted successfully');
         res.status(201).json({
             success : true,
-            data : result,
+            data : result.rows,
             message: 'Job application created successfully'
         });
     });
@@ -29,7 +29,13 @@ export const updateJobApplication = (req, res) => {
     const appId = req.params.id;
     const { jobSeeker_id, job_id, AppDate, Status, ResumeURL } = req.body;
 
-    const sql = `UPDATE jobapplications SET jobSeeker_id = ?, job_id = ?, AppDate = ?, Status = ?, ResumeURL = ? WHERE app_id = ?`;
+    const sql = `UPDATE jobapplications
+    SET jobSeeker_id = $1,
+        job_id = $2,
+        AppDate = $3,
+        Status = $4,
+        ResumeURL = $5
+    WHERE app_id = $6;`;
     const values = [jobSeeker_id, job_id, AppDate, Status, ResumeURL, appId];
 
     db.query(sql, values, (err, result) => {
@@ -49,7 +55,7 @@ export const updateJobApplication = (req, res) => {
 export const deleteJobApplication = async (req, res) => {
     const appId = req.params.id;
 
-    const sql = `DELETE FROM jobapplications WHERE app_id = ?`;
+    const sql = `DELETE FROM jobapplications WHERE app_id = $1`;
     const values = [appId];
     console.log('delete from jobappliccation')
     await db.query(sql, values, (err, result) => {
@@ -70,7 +76,7 @@ export const deleteJobApplication = async (req, res) => {
 export const getJobApplicationByApplicationId = (req, res) => {
     const appId = req.params.id;
 
-    const sql = `SELECT * FROM jobapplications WHERE app_id = ?`;
+    const sql = `SELECT * FROM jobapplications WHERE app_id = $1`;
     const values = [appId];
 
     db.query(sql, values, (err, result) => {
@@ -83,10 +89,9 @@ export const getJobApplicationByApplicationId = (req, res) => {
             res.status(404).json({ error: 'Job application not found' });
             return;
         }
-        const jobApplication = result[0];
         res.json({
             success : true,
-            data : jobApplication,
+            data : result.rows,
             msg: "Fetch job application data successfully."
         });
     });
@@ -94,7 +99,7 @@ export const getJobApplicationByApplicationId = (req, res) => {
 export const getJobApplicationsByJobSeekerId = (req, res) => {
     const jobseeker_id = req.params.id;
 
-    const sql = `select job_title, jobapplications.job_id,jobapplications.AppDate, jobapplications.app_id from jobapplications inner join jobs on jobapplications.job_id=jobs.job_id WHERE jobapplications.jobSeeker_id=?; `;
+    const sql = `select job_title, jobapplications.job_id,jobapplications.AppDate, jobapplications.app_id from jobapplications inner join jobs on jobapplications.job_id=jobs.job_id WHERE jobapplications.jobSeeker_id=$1; `;
     const values = [jobseeker_id];
 
     db.query(sql, values, (err, result) => {
@@ -107,10 +112,9 @@ export const getJobApplicationsByJobSeekerId = (req, res) => {
             res.status(404).json({ error: 'Job application not found' });
             return;
         }
-        const jobApplication = result;
         res.json({
             success : true,
-            data : jobApplication,
+            data : result.rows,
             msg: "Fetch job application data successfully."
         });
     });
@@ -119,7 +123,7 @@ export const getJobApplicationsByJobSeekerId = (req, res) => {
 export const getJobApplicationsByJobId = (req, res) => {
     const job_id = req.params.id;
 
-    const sql = `SELECT * FROM jobapplications WHERE job_id = ?`;
+    const sql = `SELECT * FROM jobapplications WHERE job_id = $1`;
     const values = [job_id];
 
     db.query(sql, values, (err, result) => {
@@ -131,7 +135,7 @@ export const getJobApplicationsByJobId = (req, res) => {
         console.log(result)
         res.status(200).json({
             success : true,
-            data : result,
+            data : result.rows,
             msg: "Fetch job application data successfully."
         });
     });
@@ -148,7 +152,7 @@ export const getAllJobApplications = (req, res) => {
         }
         res.json({
             success : true,
-            data : result,
+            data : result.rows,
             msg: "Fetch All job applications data successfully."
         });
     });

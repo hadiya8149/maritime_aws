@@ -2,10 +2,10 @@ import {db} from '../config/dbConnection.js';
 
 // Create employer
 export const createEmployer = (req, res) => {
-    const { employer_id, user_id, company_name, contact_email, contact_number, company_website, company_size, location, description } = req.body;
+    const { user_id, company_name, contact_email, contact_number, company_website, company_size, location, description } = req.body;
 
-    const sql = `INSERT INTO employers (employer_id, user_id, company_name, contact_email, contact_number, company_website, company_size, location, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    const values = [employer_id, user_id, company_name, contact_email, contact_number, company_website, company_size, location, description];
+    const sql = `INSERT INTO employers (user_id, company_name, contact_email, contact_number, company_website, company_size, location, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
+    const values = [user_id, company_name, contact_email, contact_number, company_website, company_size, location, description];
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -29,7 +29,7 @@ export const updateEmployer = (req, res) => {
     const {  company_name, contact_email, contact_number, company_website, company_size, location, description } = req.body.body;
     console.log(req.body)
     async function updateTable(col, value){
-        const sql = `UPDATE employers SET ${col} =? WHERE employer_id=?;`
+        const sql = `UPDATE employers SET ${col} =$1 WHERE employer_id=$2;`
         db.query(sql, [value,employerId], (err,result)=>{
             if(err){
                 throw err
@@ -73,7 +73,7 @@ export const updateEmployer = (req, res) => {
 export const deleteEmployer = (req, res) => {
     const employerId = req.params.id;
 
-    const sql = `DELETE FROM employers WHERE employer_id = ?`;
+    const sql = `DELETE FROM employers WHERE employer_id = $1`;
     const values = [employerId];
 
     db.query(sql, values, (err, result) => {
@@ -95,7 +95,7 @@ export const deleteEmployer = (req, res) => {
 export const getEmployerById = async(req, res) => {
     const employerId = req.params.id;
 
-    const sql = `SELECT * FROM employers WHERE employer_id = ?`;
+    const sql = `SELECT * FROM employers WHERE employer_id = $1`;
     const values = [employerId];
 
     await db.query(sql, values, (err, result) => {
@@ -112,10 +112,9 @@ export const getEmployerById = async(req, res) => {
                 error: 'Employer not found' });
             return;
         }
-        console.log(result)
         res.json({
             success : true,
-            data : result[0],
+            data : result.rows,
             msg: "Fetch employer data successfully."
         });
     });
@@ -123,7 +122,7 @@ export const getEmployerById = async(req, res) => {
 export const getEmployerByUserId = async (req, res) => {
     const user_id = req.params.id;
     console.log(user_id) 
-    const sql = `SELECT * FROM employers WHERE user_id = ?`;
+    const sql = `SELECT * FROM employers WHERE user_id = $1`;
     const values = [user_id];
 
     await db.query(sql, values, (err, result) => {
@@ -140,8 +139,7 @@ export const getEmployerByUserId = async (req, res) => {
                 error: 'Employer not found' });
             return;
         }
-        console.log(result)
-        const employer = result[0];
+        const employer = result.rows;
         res.status(200).json({
             success : true,
             data : employer,
@@ -164,7 +162,7 @@ export const getAllEmployers = (req, res) => {
         }
         res.json({
             success : true,
-            data : result,
+            data : result.rows,
             msg: "Fetch All employers data successfully."
         });
     });
