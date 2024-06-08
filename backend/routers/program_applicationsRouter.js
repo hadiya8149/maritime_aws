@@ -13,7 +13,7 @@ programApplicationRouter.post('/apply_for_program', (req,res)=>{
         if (err) {
             console.error('Error executing SQL:', err);
             res.status(500).json({ error: 'Error inserting data in applicaitons courses and programs' });
-            return;
+     
         }
         else{
             res.status(201).json({
@@ -35,7 +35,7 @@ programApplicationRouter.get('/all_program_applications', (req, res)=>{
 programApplicationRouter.get('/program_application_by_std/:id', (req, res)=>{
     const id = req.params.id;
     console.log(id)
-    const sql = 'select trainingprograms.program_id, trainingprograms.program_name, progress.CompletionStatus from applications_for_courses_and_programs inner join progress on applications_for_courses_and_programs.program_id=progress.ProgramID inner join trainingprograms on progress.ProgramID =trainingprograms.program_id where progress.std_id=?;';
+    const sql = 'select trainingprograms.program_id, trainingprograms.program_name from applications_for_courses_and_programs inner join trainingprograms on applications_for_courses_and_programs.program_id=trainingprograms.program_id where std_id=1;';
     db.query(sql,[id] ,(err, result) => {
         if (err) {
             console.error('Error executing SQL:', err);

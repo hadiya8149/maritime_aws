@@ -2,15 +2,14 @@ import { db } from "../config/dbConnection.js";
 
 export const createNotification = (req, res) => {
   const { user_id, notificationType, content, IsRead } = req.body;
-
+  console.log(req.body)
   const query = 'INSERT INTO notifications (user_id, notificationType, content, IsRead) VALUES (?, ?, ?, ?)';
   db.query(query, [user_id, notificationType, content, IsRead], (err, result) => {
     if (err) {
       console.error('Error creating notification:', err);
       res.status(500).json({ success: false, message: 'Failed to create notification' });
-      return;
     }
-
+    console.log(result)
     res.status(200).json({ 
         success: true, 
         message: 'Notification created successfully'

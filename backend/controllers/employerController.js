@@ -122,7 +122,7 @@ export const getEmployerById = async(req, res) => {
 };
 export const getEmployerByUserId = async (req, res) => {
     const user_id = req.params.id;
-    console.log(user_id)
+    console.log(user_id) 
     const sql = `SELECT * FROM employers WHERE user_id = ?`;
     const values = [user_id];
 

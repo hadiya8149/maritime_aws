@@ -91,17 +91,12 @@ export const getJobById = (req, res) => {
 };
 export const getJobByEmployerId = (req, res) => {
     const employerId = req.params.id;
-
+    console.log(req.params.id)
     const sql = `SELECT * FROM jobs WHERE employer_id = ?`;
     db.query(sql, [employerId], (err, result) => {
         if (err) {
             console.error('Error executing SQL:', err);
             res.status(500).json({ error: 'Error fetching job' });
-            return;
-        }
-        if (result.length === 0) {
-            res.status(404).json({ error: 'Job not found' });
-            return;
         }
         const job = result;
         console.log(result)

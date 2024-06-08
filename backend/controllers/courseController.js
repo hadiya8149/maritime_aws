@@ -6,15 +6,6 @@ export const createCourse  = async (req, res) => {
   const { course_name, description, duration_months, instructor } = req.body.body;
   console.log(course_name, description, duration_months, instructor)
   const images = req.files; // Retrieve the array of uploaded files
-  // Check if all required fields are present
-  if (!course_name || !description || !duration_months || !instructor) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
-
-  // Store the URLs of uploaded images
-  // const imageUrls = images.map(image => image.path); // Assuming Multer stores the file paths
-
-  // Construct an SQL query to insert course details and image URLs into the database
   const query = `
     INSERT INTO courses (course_name, description, duration_months, instructor, image_url) 
     VALUES (?, ?, ?, ?, ?)
@@ -28,11 +19,6 @@ export const createCourse  = async (req, res) => {
     console.log(results)
     if (error) {
       console.log(error)
-      res.status(500).json({
-        success: false,
-        error: 'Internal Server Error'
-      });
-      return;
     }
     console.log(results)
     res.status(201).json({

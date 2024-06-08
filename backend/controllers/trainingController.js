@@ -8,9 +8,7 @@ export const createProgram = async (req, res) => {
   console.log(program_name, description, duration_months, trainer)
 
   // Check if all required fields are present
-  if (!program_name || !description || !duration_months || !trainer) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
+
   const query = `
     INSERT INTO trainingprograms (program_name, description, duration_months, trainer, img_url) 
     VALUES (?, ?, ?, ?, ?)
@@ -20,11 +18,7 @@ export const createProgram = async (req, res) => {
 
   db.query(query, values, (error, result) => {
     if (error) {
-      res.status(500).json({
-        success: false,
-        // err: error,
-        error: 'Internal Server Error'
-      });
+      console.log(error)
     }
     console.log(result)
     res.status(201).json({
